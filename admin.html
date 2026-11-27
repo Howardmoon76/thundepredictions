@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>Thunder Predictions — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#edf2f2;
+    --panel:#ffffff;
+    --panel-2:#f7fafa;
+    --ink:#12262a;
+    --muted:#5b7176;
+    --faint:#82969a;
+    --line:#d7e1e1;
+    --line-strong:#b9caca;
+    --teal:#0da596;
+    --teal-dark:#087f74;
+    --teal-soft:#e0f4f1;
+    --header:#0a1e22;
+    --header-2:#102e33;
+    --amber:#e9a820;
+    --amber-soft:#fdf0d2;
+    --red:#c2412f;
+    --red-soft:#fdeae7;
+    --green:#178a4c;
+    --shadow:0 10px 28px rgba(10,35,38,.08);
+    --radius:14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0d1719;
+      --panel:#162528;
+      --panel-2:#1a2d30;
+      --ink:#edf5f5;
+      --muted:#a7bcbe;
+      --faint:#7e9699;
+      --line:#2a4144;
+      --line-strong:#385457;
+      --teal:#1fc2b2;
+      --teal-dark:#1fc2b2;
+      --teal-soft:#123a37;
+      --amber-soft:#3a2f10;
+      --red-soft:#3d1e19;
+      --shadow:0 10px 28px rgba(0,0,0,.28);
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Barlow",system-ui,-apple-system,Segoe UI,sans-serif;font-size:16px;line-height:1.45}
+  a{color:var(--teal-dark)}
+  button,input,select{font:inherit}
+  button,[role="button"],select,input:not([type="checkbox"]){min-height:44px}
+  :focus-visible{outline:3px solid var(--teal);outline-offset:2px;border-radius:6px}
+
+  /* ---------- Header ---------- */
+  .topbar{background:var(--header);color:#fff;padding:22px 0 0;overflow:hidden}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 18px}
+  .top-row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;justify-content:space-between}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#cfe8e5;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:6px 11px;border-radius:999px}
+  .eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);flex:none}
+  h1{font-family:"Barlow Condensed",sans-serif;font-weight:800;text-transform:uppercase;line-height:.92;letter-spacing:.01em;font-size:clamp(42px,7vw,64px);margin:14px 0 4px}
+  h1 span{color:var(--teal);display:block}
+  .top-sub{color:#b9d2d0;max-width:560px;margin:6px 0 0;font-size:16px}
+  .top-actions{display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+  .mock-badge{border:1.5px solid rgba(255,255,255,.55);color:#fff;font-size:12px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;padding:8px 13px;border-radius:999px;white-space:nowrap}
+  .live-link{display:inline-flex;align-items:center;gap:8px;color:#fff;text-decoration:none;font-weight:700;font-size:15px;background:var(--header-2);border:1px solid rgba(255,255,255,.16);padding:10px 14px;border-radius:10px;min-height:44px}
+  .live-link:hover{border-color:var(--teal)}
+  .live-link svg{flex:none}
+
+  .signed-in{margin-top:20px;background:var(--header-2);border-top:1px solid rgba(255,255,255,.09)}
+  .signed-in .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding-top:12px;padding-bottom:12px}
+  .avatar{width:40px;height:40px;border-radius:50%;background:var(--teal);color:#04211d;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;flex:none}
+  .who{line-height:1.25}
+  .who strong{display:block;font-size:16px;color:#fff}
+  .who span{font-size:13.5px;color:#9fc0bd}
+  .lock-note{margin-left:auto;display:inline-flex;align-items:center;gap:7px;color:#9fc0bd;font-size:13.5px}
+  .signout{background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;font-weight:700;padding:8px 14px;border-radius:9px;cursor:pointer}
+  .signout:hover{border-color:#fff}
+
+  /* ---------- Stat strip ---------- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0 4px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+  .stat b{font-family:"Barlow Condensed",sans-serif;font-size:32px;line-height:1;display:block}
+  .stat span{font-size:12.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+  .stat.hot b{color:var(--teal-dark)}
+
+  /* ---------- Layout ---------- */
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start;padding:18px 0 10px}
+  .section-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px;margin:6px 0 4px}
+  h2{font-family:"Barlow Condensed",sans-serif;font-size:29px;text-transform:uppercase;letter-spacing:.02em;margin:0;line-height:1}
+  .section-head p{margin:0;color:var(--muted);font-size:14.5px}
+  h3{font-family:"Barlow Condensed",sans-serif;font-size:22px;text-transform:uppercase;margin:0 0 4px;line-height:1.05}
+
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+  .filter{border:1.5px solid var(--line-strong);background:var(--panel);color:var(--ink);font-weight:700;font-size:14.5px;padding:9px 15px;border-radius:999px;cursor:pointer}
+  .filter[aria-pressed="true"]{background:var(--header);border-color:var(--header);color:#fff}
+  @media (prefers-color-scheme: dark){ .filter[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:#04211d} }
+  .filter .n{opacity:.65;font-weight:600}
+
+  /* ---------- Fixture cards ---------- */
+  .fixtures{display:flex;flex-direction:column;gap:14px}
+  .fixture{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px}
+  .fx-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .fx-date{font-weight:800;font-size:15px}
+  .fx-meta{color:var(--muted);font-size:14px;display:inline-flex;align-items:center;gap:5px}
+  .chip{margin-left:auto;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:999px;white-space:nowrap}
+  .chip.open{background:var(--teal-soft);color:var(--teal-dark)}
+  .chip.locked{background:var(--amber-soft);color:#8a6104}
+  @media (prefers-color-scheme: dark){ .chip.locked{color:var(--amber)} }
+  .chip.finished{background:var(--header);color:#fff}
+  @media (prefers-color-scheme: dark){ .chip.finished{background:var(--teal);color:#04211d} }
+  .fx-teams{display:flex;align-items:center;gap:10px;margin:13px 0 4px}
+  .team{flex:1;font-weight:700;font-size:17.5px;line-height:1.2}
+  .team small{display:block;font-weight:600;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-top:2px}
+  .team.away{text-align:right}
+  .vs{font-family:"Barlow Condensed",sans-serif;font-weight:700;color:var(--faint);font-size:17px;flex:none}
+  .fx-result-line{font-family:"Barlow Condensed",sans-serif;font-size:30px;font-weight:800;text-align:center;margin:6px 0 2px;letter-spacing:.04em}
+  .fx-result-line span{color:var(--faint);font-weight:600;margin:0 6px}
+  .fx-venue{color:var(--muted);font-size:14px;display:flex;align-items:center;gap:5px}
+  .pred-count{color:var(--muted);font-size:14px;margin-top:2px}
+  .pred-count strong{color:var(--ink)}
+
+  .score-row{display:flex;align-items:flex-end;gap:10px;margin-top:13px;flex-wrap:wrap}
+  .score-box{display:flex;flex-direction:column;gap:5px}
+  .score-box label{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .stepper{display:flex;align-items:stretch;gap:6px}
+  .stepper button{width:44px;min-height:52px;border:1.5px solid var(--line-strong);background:var(--panel-2);color:var(--ink);font-size:22px;font-weight:700;border-radius:10px;cursor:pointer;line-height:1}
+  .stepper input{width:64px;min-height:52px;text-align:center;font-size:24px;font-weight:800;border:1.5px solid var(--line-strong);border-radius:10px;background:var(--panel);color:var(--ink);-moz-appearance:textfield;appearance:textfield}
+  .stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .dash{align-self:center;font-size:22px;color:var(--faint);font-weight:700;padding-bottom:12px}
+  .btn{border:none;border-radius:10px;font-weight:800;cursor:pointer;padding:11px 18px;font-size:15.5px;display:inline-flex;align-items:center;gap:8px;justify-content:center}
+  .btn-primary{background:var(--teal);color:#03211d;min-height:52px}
+  .btn-primary:hover{background:var(--teal-dark);color:#fff}
+  .btn-ghost{background:transparent;border:1.5px solid var(--line-strong);color:var(--ink)}
+  .btn-ghost:hover{border-color:var(--ink)}
+  .btn-small{min-height:44px;padding:8px 13px;font-size:14.5px}
+  .fx-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .fx-actions .spacer{flex:1}
+  .btn-danger{background:transparent;border:1.5px solid var(--line-strong);color:var(--red)}
+  .btn-danger:hover{border-color:var(--red);background:var(--red-soft)}
+
+  .awarded{margin-top:12px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+  .awarded h4{margin:0 0 7px;font-size:12.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+  .awarded ul{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+  .awarded li{font-size:14px;font-weight:600;background:var(--panel);border:1px solid var(--line);padding:5px 10px;border-radius:999px}
+  .awarded li b{color:var(--teal-dark)}
+  .awarded li.zero{color:var(--muted)}
+  .awarded li.zero b{color:var(--muted)}
+  .corrected{font-size:13px;color:#8a6104;font-weight:700;margin-top:8px}
+  @media (prefers-color-scheme: dark){ .corrected{color:var(--amber)} }
+  .empty-note{background:var(--panel);border:1.5px dashed var(--line-strong);border-radius:var(--radius);padding:22px;text-align:center;color:var(--muted);font-weight:600}
+
+  /* ---------- Sidebar ---------- */
+  .side{display:flex;flex-direction:column;gap:16px;position:sticky;top:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:17px 18px}
+  .card p.sub{margin:0 0 12px;color:var(--muted);font-size:14.5px}
+  .field{margin-bottom:11px}
+  .field label{display:block;font-size:12.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+  .field input,.field select{width:100%;border:1.5px solid var(--line-strong);border-radius:10px;background:var(--panel);color:var(--ink);padding:10px 12px;font-size:16px;min-height:48px}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .form-msg{font-size:14px;font-weight:700;margin-top:10px;min-height:20px}
+  .form-msg.ok{color:var(--green)}
+  .form-msg.err{color:var(--red)}
+  .btn-block{width:100%}
+
+  table.board{width:100%;border-collapse:collapse;font-size:15px}
+  table.board th{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);text-align:left;padding:6px 4px;border-bottom:1.5px solid var(--line)}
+  table.board th:last-child,table.board td:last-child{text-align:right}
+  table.board td{padding:8px 4px;border-bottom:1px solid var(--line);vertical-align:middle}
+  table.board tr:last-child td{border-bottom:none}
+  table.board tr.leader td{font-weight:800}
+  .pos{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:18px;width:26px}
+  .move{font-size:12.5px;font-weight:800;margin-left:6px}
+  .move.up{color:var(--green)} .move.down{color:var(--red)} .move.same{color:var(--faint)}
+  .pts{font-family:"Barlow Condensed",sans-serif;font-size:21px;font-weight:800}
+  .board-note{font-size:13px;color:var(--muted);margin:10px 0 0}
+
+  .scoring{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+  .scoring div{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:9px 10px;text-align:center}
+  .scoring b{font-family:"Barlow Condensed",sans-serif;font-size:24px;display:block;line-height:1}
+  .scoring span{font-size:12.5px;font-weight:700;color:var(--muted)}
+
+  .upload-tip{font-size:14.5px;color:var(--muted);overflow-wrap:anywhere}
+  .upload-tip code{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:13.5px;color:var(--ink);font-weight:700}
+  .upload-tip strong{color:var(--ink)}
+
+  /* ---------- Toast / footer ---------- */
+  .toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,90px);background:var(--header);color:#fff;font-weight:700;font-size:15.5px;padding:13px 20px;border-radius:12px;box-shadow:0 14px 34px rgba(0,0,0,.3);transition:transform .3s ease;z-index:50;max-width:min(92vw,520px);text-align:center}
+  .toast.show{transform:translate(-50%,0)}
+  @media (prefers-color-scheme: dark){ .toast{background:var(--teal);color:#03211d} }
+  footer{padding:8px 0 34px;color:var(--muted);font-size:14px}
+  footer .wrap{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
+  .reset{background:none;border:none;color:var(--muted);text-decoration:underline;cursor:pointer;font-weight:600;padding:10px 4px;min-height:44px}
+  .reset:hover{color:var(--red)}
+
+  @media (max-width:900px){
+    .layout{grid-template-columns:1fr}
+    .side{position:static}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .top-actions{align-items:flex-start;flex-direction:row;flex-wrap:wrap}
+    .lock-note{margin-left:0}
+  }
+  @media (max-width:480px){
+    .fx-teams{gap:7px}
+    .team{font-size:16px}
+    .score-row{gap:8px}
+    .stepper input{width:56px}
+    .btn-primary{flex:1}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .toast{transition:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="top-row">
+      <div>
+        <span class="eyebrow"><span class="dot"></span> MK Thunder · NIHL South 2</span>
+        <h1>Admin <span>Thunder Predictions</span></h1>
+        <p class="top-sub">Your working page — add fixtures, type in the final scores, and the points and leaderboard sort themselves out.</p>
+      </div>
+      <div class="top-actions">
+        <span class="mock-badge">Mock-up — try it out</span>
+        <a class="live-link" href="https://howardmoon76.github.io/thundepredictions/" target="_blank" rel="noopener">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>
+          View the live site
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="signed-in">
+    <div class="wrap">
+      <div class="avatar" aria-hidden="true">M</div>
+      <div class="who">
+        <strong>Signed in as Mark</strong>
+        <span>Admin · howardmoon76</span>
+      </div>
+      <span class="lock-note">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        Mock-up — anyone with this link can open it
+      </span>
+      <button class="signout" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="stats" aria-label="At a glance">
+    <div class="stat hot"><b id="statNeeds">2</b><span>Need a result</span></div>
+    <div class="stat"><b id="statOpen">4</b><span>Fixtures listed</span></div>
+    <div class="stat"><b id="statPreds">20</b><span>Predictions in · open games</span></div>
+    <div class="stat"><b id="statTop">Jess T. · 15</b><span>Current leader</span></div>
+  </section>
+
+  <div class="layout">
+    <section aria-labelledby="fixturesTitle">
+      <div class="section-head">
+        <h2 id="fixturesTitle">Fixtures &amp; results</h2>
+        <p>In date order. Save a result and it flips to Finished.</p>
+      </div>
+
+      <div class="filters" role="group" aria-label="Filter fixtures">
+        <button type="button" class="filter" data-filter="all" aria-pressed="true">All <span class="n" id="nAll"></span></button>
+        <button type="button" class="filter" data-filter="needs" aria-pressed="false">Needs a result <span class="n" id="nNeeds"></span></button>
+        <button type="button" class="filter" data-filter="finished" aria-pressed="false">Finished <span class="n" id="nFin"></span></button>
+      </div>
+
+      <div class="fixtures" id="fixtureList"></div>
+      <div class="empty-note" id="emptyNote" hidden>Nothing here under this filter — try another one.</div>
+    </section>
+
+    <aside class="side">
+      <section class="card" aria-labelledby="addTitle">
+        <h3 id="addTitle">Add a fixture</h3>
+        <p class="sub">New game coming up? Pop it in here and it appears in the list, open for predictions.</p>
+        <form id="addForm" novalidate>
+          <div class="field">
+            <label for="fDate">Date</label>
+            <input type="date" id="fDate" required>
+          </div>
+          <div class="field">
+            <label for="fHome">Home team</label>
+            <input type="text" id="fHome" placeholder="e.g. MK Thunder" autocomplete="off" required>
+          </div>
+          <div class="field">
+            <label for="fAway">Away team</label>
+            <input type="text" id="fAway" placeholder="e.g. Bristol Pitbulls 2" autocomplete="off" required>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="fTime">Face-off</label>
+              <input type="time" id="fTime" required>
+            </div>
+            <div class="field">
+              <label for="fVenue">Venue <span style="text-transform:none;letter-spacing:0">(optional)</span></label>
+              <input type="text" id="fVenue" placeholder="e.g. Planet Ice MK" autocomplete="off">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            Add fixture
+          </button>
+          <p class="form-msg" id="formMsg" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="card" aria-labelledby="boardTitle">
+        <h3 id="boardTitle">Leaderboard preview</h3>
+        <p class="sub">Exactly what everyone else sees. Updates the moment you save a result. Season totals include 6 earlier games that aren't listed on this page.</p>
+        <table class="board">
+          <thead>
+            <tr><th scope="col">#</th><th scope="col">Player</th><th scope="col">Exact</th><th scope="col">Pts</th></tr>
+          </thead>
+          <tbody id="boardBody"></tbody>
+        </table>
+        <p class="board-note" id="boardNote">After 8 games played.</p>
+      </section>
+
+      <section class="card" aria-labelledby="scoringTitle">
+        <h3 id="scoringTitle">How points work</h3>
+        <div class="scoring">
+          <div><b>3</b><span>Exact score</span></div>
+          <div><b>1</b><span>Right winner</span></div>
+          <div><b>0</b><span>Wrong winner</span></div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="uploadTitle">
+        <h3 id="uploadTitle">Putting this live</h3>
+        <p class="upload-tip">Upload this file to the same <strong>thundepredictions</strong> repo as the main page, but save it as <code>admin.html</code>. It will then sit alongside it at <strong>howardmoon76.github.io/thundepredictions/admin.html</strong>.</p>
+        <p class="upload-tip"><strong>Heads up:</strong> as a mock-up on GitHub Pages, anyone with that link could open it — there's no real login on this version. The real admin page will sit behind your login, so only you can get in.</p>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Thunder Predictions admin mock-up — nothing here is saved for real yet. Close the page and it resets to the example fixtures and scores.</span>
+    <button type="button" class="reset" id="resetBtn">Reset the mock-up</button>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- Demo data (matches the main mock-up) ---------- */
+  var BASE_PLAYERS = [
+    { name:"Jess T.",  base:15, exact:3 },
+    { name:"Mark",     base:11, exact:2, you:true },
+    { name:"Tom R.",   base:11, exact:2 },
+    { name:"Sarah K.", base:8,  exact:1 },
+    { name:"Dan W.",   base:7,  exact:1 },
+    { name:"Priya S.", base:5,  exact:0 }
+  ];
+
+  function demoFixtures(){
+    return [
+      {
+        id:"fx1", date:"2026-11-21", dateLabel:"Sat 21 Nov", time:"6:30pm",
+        home:"MK Thunder", away:"Oxford City Stars",
+        venue:"Planet Ice, Milton Keynes",
+        status:"finished", result:{h:5,a:2}, corrected:false,
+        predictions:[
+          {p:"Jess T.",h:5,a:2},{p:"Mark",h:4,a:2},{p:"Tom R.",h:3,a:1},
+          {p:"Sarah K.",h:2,a:3},{p:"Dan W.",h:5,a:2},{p:"Priya S.",h:1,a:2}
+        ],
+        awarded:null
+      },
+      {
+        id:"fx2", date:"2026-11-22", dateLabel:"Sun 22 Nov", time:"5:30pm",
+        home:"Chelmsford Warriors", away:"MK Thunder",
+        venue:"Riverside Ice, Chelmsford",
+        status:"finished", result:{h:3,a:4}, corrected:false,
+        predictions:[
+          {p:"Jess T.",h:2,a:4},{p:"Mark",h:3,a:4},{p:"Tom R.",h:4,a:3},
+          {p:"Sarah K.",h:1,a:3},{p:"Dan W.",h:3,a:2},{p:"Priya S.",h:2,a:2}
+        ],
+        awarded:null
+      },
+      {
+        id:"fx3", date:"2026-11-28", dateLabel:"Sat 28 Nov", time:"7:00pm",
+        home:"Bristol Pitbulls 2", away:"MK Thunder",
+        venue:"Planet Ice, Bristol",
+        status:"open", result:null, corrected:false,
+        predictions:[
+          {p:"Jess T.",h:2,a:4},{p:"Mark",h:3,a:5},{p:"Tom R.",h:4,a:2},
+          {p:"Sarah K.",h:1,a:4},{p:"Dan W.",h:2,a:3},{p:"Priya S.",h:2,a:2}
+        ],
+        awarded:null
+      },
+      {
+        id:"fx4", date:"2026-11-29", dateLabel:"Sun 29 Nov", time:"5:30pm",
+        home:"Guildford Phoenix", away:"MK Thunder",
+        venue:"Guildford Spectrum",
+        status:"open", result:null, corrected:false,
+        predictions:[
+          {p:"Jess T.",h:3,a:2},{p:"Mark",h:2,a:4},{p:"Tom R.",h:1,a:3},
+          {p:"Sarah K.",h:2,a:2},{p:"Dan W.",h:4,a:3},{p:"Priya S.",h:2,a:5}
+        ],
+        awarded:null
+      },
+      {
+        id:"fx5", date:"2026-12-05", dateLabel:"Sat 5 Dec", time:"6:30pm",
+        home:"MK Thunder", away:"Invicta Mustangs",
+        venue:"Planet Ice, Milton Keynes",
+        status:"open", result:null, corrected:false,
+        predictions:[
+          {p:"Jess T.",h:4,a:1},{p:"Mark",h:5,a:2}
+        ],
+        awarded:null
+      },
+      {
+        id:"fx6", date:"2026-12-13", dateLabel:"Sun 13 Dec", time:"5:30pm",
+        home:"Peterborough Phantoms 2", away:"MK Thunder",
+        venue:"Planet Ice, Peterborough",
+        status:"open", result:null, corrected:false,
+        predictions:[],
+        awarded:null
+      }
+    ];
+  }
+
+  var players, fixtures, filter = "all", editingId = null, prevRanks = {};
+  var gamesCountedBase = 8; /* games already played before these demo fixtures */
+
+  function resetState(){
+    players = BASE_PLAYERS.map(function(p){
+      return { name:p.name, pts:p.base, exact:p.exact, you:!!p.you };
+    });
+    fixtures = demoFixtures();
+    editingId = null;
+    /* Award points for the two already-finished demo fixtures on top of base?
+       No — base totals already include them, so mark them awarded without
+       adding again: compute their breakdown for display only. */
+    fixtures.forEach(function(fx){
+      if(fx.status === "finished"){
+        fx.awarded = scoreFixture(fx, fx.result);
+        fx.counted = true;
+      }
+    });
+    prevRanks = rankMap();
+  }
+
+  function winner(h,a){ return h>a ? "H" : (a>h ? "A" : "D"); }
+
+  function scoreFixture(fx, result){
+    var out = [];
+    fx.predictions.forEach(function(pr){
+      var pts = 0;
+      if(pr.h === result.h && pr.a === result.a) pts = 3;
+      else if(winner(pr.h,pr.a) === winner(result.h,result.a)) pts = 1;
+      out.push({ p:pr.p, pred:pr.h + "–" + pr.a, pts:pts });
+    });
+    return out;
+  }
+
+  function applyAward(fx, sign){
+    if(!fx.awarded) return;
+    fx.awarded.forEach(function(a){
+      var pl = players.find(function(x){ return x.name === a.p; });
+      if(pl){
+        pl.pts += sign * a.pts;
+        if(a.pts === 3) pl.exact += sign * 1;
+      }
+    });
+  }
+
+  function rankMap(){
+    var sorted = players.slice().sort(function(a,b){ return b.pts - a.pts || b.exact - a.exact || a.name.localeCompare(b.name); });
+    var map = {};
+    sorted.forEach(function(p,i){ map[p.name] = i+1; });
+    return map;
+  }
+
+  /* ---------- Rendering ---------- */
+  var listEl = document.getElementById("fixtureList");
+  var emptyEl = document.getElementById("emptyNote");
+
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  function chipFor(fx){
+    if(fx.status === "finished") return '<span class="chip finished">Finished</span>';
+    if(fx.status === "locked") return '<span class="chip locked">Locked · awaiting result</span>';
+    return '<span class="chip open">● Open for predictions</span>';
+  }
+
+  function stepperHTML(fx, side, val){
+    var id = fx.id + "-" + side;
+    return '<div class="score-box">' +
+      '<label for="' + id + '">' + (side === "h" ? "Home" : "Away") + ' score</label>' +
+      '<div class="stepper">' +
+        '<button type="button" data-step="-1" data-target="' + id + '" aria-label="Minus one">−</button>' +
+        '<input type="number" id="' + id + '" data-score="' + side + '" min="0" max="30" inputmode="numeric" value="' + (val === null || val === undefined ? "" : val) + '" placeholder="0">' +
+        '<button type="button" data-step="1" data-target="' + id + '" aria-label="Plus one">+</button>' +
+      '</div></div>';
+  }
+
+  function fixtureHTML(fx){
+    var isEditing = editingId === fx.id;
+    var showForm = fx.status !== "finished" || isEditing;
+    var html = '<article class="fixture" data-id="' + fx.id + '">';
+    html += '<div class="fx-top">' +
+      '<span class="fx-date">' + esc(fx.dateLabel) + '</span>' +
+      '<span class="fx-meta">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>' +
+        esc(fx.time) + '</span>' +
+      chipFor(fx) + '</div>';
+
+    html += '<div class="fx-teams">' +
+      '<div class="team">' + esc(fx.home) + '<small>Home</small></div>' +
+      '<div class="vs">VS</div>' +
+      '<div class="team away">' + esc(fx.away) + '<small>Away</small></div></div>';
+
+    if(fx.venue){
+      html += '<div class="fx-venue">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>' +
+        esc(fx.venue) + '</div>';
+    }
+
+    if(fx.status === "finished" && !isEditing){
+      html += '<div class="fx-result-line">' + fx.result.h + '<span>–</span>' + fx.result.a + '</div>';
+    } else {
+      html += '<div class="pred-count"><strong>' + fx.predictions.length + '</strong> prediction' +
+        (fx.predictions.length === 1 ? "" : "s") + ' in' +
+        (fx.status === "finished" ? ' · correcting the score below will re-work the points' : '') + '</div>';
+    }
+
+    if(showForm){
+      var hv = isEditing && fx.result ? fx.result.h : "";
+      var av = isEditing && fx.result ? fx.result.a : "";
+      html += '<div class="score-row">' +
+        stepperHTML(fx, "h", hv) +
+        '<div class="dash">–</div>' +
+        stepperHTML(fx, "a", av) +
+        '<button type="button" class="btn btn-primary" data-action="save" data-id="' + fx.id + '">' +
+          (isEditing ? "Save correction" : "Save result") + '</button>' +
+        (isEditing ? '<button type="button" class="btn btn-ghost" data-action="cancel-edit" data-id="' + fx.id + '">Cancel</button>' : '') +
+      '</div>';
+    }
+
+    if(fx.status === "finished" && fx.awarded && fx.awarded.length){
+      html += '<div class="awarded"><h4>Points from this game</h4><ul>';
+      fx.awarded.forEach(function(a){
+        html += '<li class="' + (a.pts === 0 ? "zero" : "") + '">' + esc(a.p) + ' · ' + esc(a.pred) + ' · <b>+' + a.pts + '</b></li>';
+      });
+      html += '</ul>';
+      if(fx.corrected) html += '<div class="corrected">Score corrected — points re-worked.</div>';
+      html += '</div>';
+    }
+
+    html += '<div class="fx-actions">';
+    if(fx.status === "finished" && !isEditing){
+      html += '<button type="button" class="btn btn-ghost btn-small" data-action="edit" data-id="' + fx.id + '">Fix this score</button>';
+    }
+    if(fx.status === "open"){
+      html += '<button type="button" class="btn btn-ghost btn-small" data-action="lock" data-id="' + fx.id + '">Close predictions</button>';
+    }
+    if(fx.status === "locked"){
+      html += '<button type="button" class="btn btn-ghost btn-small" data-action="unlock" data-id="' + fx.id + '">Re-open predictions</button>';
+    }
+    html += '<span class="spacer"></span>';
+    if(fx.status !== "finished"){
+      html += '<button type="button" class="btn btn-danger btn-small" data-action="remove" data-id="' + fx.id + '">Remove fixture</button>';
+    }
+    html += '</div></article>';
+    return html;
+  }
+
+  function visibleFixtures(){
+    return fixtures.filter(function(fx){
+      if(filter === "needs") return fx.status !== "finished";
+      if(filter === "finished") return fx.status === "finished";
+      return true;
+    });
+  }
+
+  function render(){
+    var vis = visibleFixtures();
+    listEl.innerHTML = vis.map(fixtureHTML).join("");
+    emptyEl.hidden = vis.length > 0;
+    renderBoard();
+    renderStats();
+    document.getElementById("nAll").textContent = "(" + fixtures.length + ")";
+    document.getElementById("nNeeds").textContent = "(" + fixtures.filter(function(f){ return f.status !== "finished"; }).length + ")";
+    document.getElementById("nFin").textContent = "(" + fixtures.filter(function(f){ return f.status === "finished"; }).length + ")";
+  }
+
+  function renderBoard(){
+    var sorted = players.slice().sort(function(a,b){ return b.pts - a.pts || b.exact - a.exact || a.name.localeCompare(b.name); });
+    var body = document.getElementById("boardBody");
+    body.innerHTML = sorted.map(function(p,i){
+      var prev = prevRanks[p.name];
+      var move = "";
+      if(prev && prev !== i+1) move = '<span class="move ' + (prev > i+1 ? "up" : "down") + '">' + (prev > i+1 ? "▲" : "▼") + Math.abs(prev-(i+1)) + '</span>';
+      else if(prev) move = '<span class="move same">—</span>';
+      return '<tr class="' + (i === 0 ? "leader" : "") + '"><td class="pos">' + (i+1) + '</td>' +
+        '<td>' + esc(p.name) + (p.you ? ' <span style="color:var(--muted);font-weight:600">(you)</span>' : '') + move + '</td>' +
+        '<td>' + p.exact + '</td><td class="pts">' + p.pts + '</td></tr>';
+    }).join("");
+    var finishedCount = fixtures.filter(function(f){ return f.status === "finished" && f.counted; }).length;
+    document.getElementById("boardNote").textContent =
+      "After " + (gamesCountedBase + Math.max(0, finishedCount - 2)) + " games played · " + players.length + " players in · totals include 6 earlier games not listed here.";
+  }
+
+  function renderStats(){
+    var needs = fixtures.filter(function(f){ return f.status !== "finished"; }).length;
+    var preds = fixtures.reduce(function(n,f){ return n + (f.status === "finished" ? 0 : f.predictions.length); }, 0);
+    var top = players.slice().sort(function(a,b){ return b.pts - a.pts; })[0];
+    document.getElementById("statNeeds").textContent = needs;
+    document.getElementById("statOpen").textContent = fixtures.length;
+    document.getElementById("statPreds").textContent = preds;
+    document.getElementById("statTop").textContent = top.name.replace(" (You)","") + " · " + top.pts;
+  }
+
+  /* ---------- Toast ---------- */
+  var toastEl = document.getElementById("toast"), toastTimer = null;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 3400);
+  }
+
+  /* ---------- Actions ---------- */
+  listEl.addEventListener("click", function(e){
+    var stepBtn = e.target.closest("[data-step]");
+    if(stepBtn){
+      var input = document.getElementById(stepBtn.getAttribute("data-target"));
+      var v = parseInt(input.value, 10);
+      if(isNaN(v)) v = 0;
+      v += parseInt(stepBtn.getAttribute("data-step"), 10);
+      if(v < 0) v = 0; if(v > 30) v = 30;
+      input.value = v;
+      input.focus();
+      return;
+    }
+    var btn = e.target.closest("[data-action]");
+    if(!btn) return;
+    var id = btn.getAttribute("data-id");
+    var fx = fixtures.find(function(f){ return f.id === id; });
+    if(!fx) return;
+    var action = btn.getAttribute("data-action");
+
+    if(action === "save"){
+      var card = btn.closest(".fixture");
+      var hIn = card.querySelector('[data-score="h"]');
+      var aIn = card.querySelector('[data-score="a"]');
+      var h = parseInt(hIn.value, 10), a = parseInt(aIn.value, 10);
+      if(isNaN(h) || isNaN(a) || h < 0 || a < 0 || h > 30 || a > 30){
+        toast("Pop both scores in first — numbers from 0 to 30.");
+        (isNaN(h) ? hIn : aIn).focus();
+        return;
+      }
+      var wasCounted = fx.counted;
+      if(wasCounted) applyAward(fx, -1);
+      fx.result = { h:h, a:a };
+      fx.status = "finished";
+      fx.awarded = scoreFixture(fx, fx.result);
+      applyAward(fx, 1);
+      fx.counted = true;
+      if(wasCounted) fx.corrected = true;
+      editingId = null;
+      render();
+      var exacts = fx.awarded.filter(function(x){ return x.pts === 3; }).map(function(x){ return x.p; });
+      toast("Result saved: " + fx.home + " " + h + "–" + a + " " + fx.away + "." +
+        (exacts.length ? " Exact score for " + exacts.join(", ") + " — +3!" : " Leaderboard updated."));
+      prevRanks = rankMap();
+      return;
+    }
+    if(action === "edit"){ editingId = id; render(); 
+      var inp = document.getElementById(id + "-h"); if(inp) inp.focus();
+      return;
+    }
+    if(action === "cancel-edit"){ editingId = null; render(); return; }
+    if(action === "lock"){ fx.status = "locked"; render(); toast("Predictions closed for " + fx.home + " vs " + fx.away + "."); return; }
+    if(action === "unlock"){ fx.status = "open"; render(); toast("Predictions re-opened for " + fx.home + " vs " + fx.away + "."); return; }
+    if(action === "remove"){
+      fixtures = fixtures.filter(function(f){ return f.id !== id; });
+      if(editingId === id) editingId = null;
+      render();
+      toast("Fixture removed: " + fx.home + " vs " + fx.away + ".");
+      return;
+    }
+  });
+
+  /* ---------- Filters ---------- */
+  document.querySelectorAll(".filter").forEach(function(b){
+    b.addEventListener("click", function(){
+      filter = b.getAttribute("data-filter");
+      document.querySelectorAll(".filter").forEach(function(x){
+        x.setAttribute("aria-pressed", x === b ? "true" : "false");
+      });
+      render();
+    });
+  });
+
+  /* ---------- Add fixture ---------- */
+  var form = document.getElementById("addForm");
+  var formMsg = document.getElementById("formMsg");
+  var DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  function fmtDate(iso){
+    var d = new Date(iso + "T12:00:00");
+    return DAYS[d.getDay()] + " " + d.getDate() + " " + MONTHS[d.getMonth()];
+  }
+  function fmtTime(t){
+    var parts = t.split(":");
+    var hh = parseInt(parts[0],10), mm = parts[1];
+    var suffix = hh >= 12 ? "pm" : "am";
+    var h12 = hh % 12; if(h12 === 0) h12 = 12;
+    return h12 + ":" + mm + suffix;
+  }
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    var date = document.getElementById("fDate").value;
+    var home = document.getElementById("fHome").value.trim();
+    var away = document.getElementById("fAway").value.trim();
+    var time = document.getElementById("fTime").value;
+    var venue = document.getElementById("fVenue").value.trim();
+    formMsg.className = "form-msg";
+    if(!date || !home || !away || !time){
+      formMsg.classList.add("err");
+      formMsg.textContent = "Fill in the date, both teams and the face-off time.";
+      return;
+    }
+    if(home.toLowerCase() === away.toLowerCase()){
+      formMsg.classList.add("err");
+      formMsg.textContent = "Home and away teams look the same — check those.";
+      return;
+    }
+    fixtures.push({
+      id:"fx" + Date.now(), date:date, dateLabel:fmtDate(date), time:fmtTime(time),
+      home:home, away:away, venue:venue, status:"open", result:null,
+      corrected:false, predictions:[], awarded:null, counted:false
+    });
+    fixtures.sort(function(a,b){ return a.date < b.date ? -1 : (a.date > b.date ? 1 : 0); });
+    form.reset();
+    formMsg.classList.add("ok");
+    formMsg.textContent = "Added — " + home + " vs " + away + " is now in the list, open for predictions.";
+    filter = "all";
+    document.querySelectorAll(".filter").forEach(function(x){
+      x.setAttribute("aria-pressed", x.getAttribute("data-filter") === "all" ? "true" : "false");
+    });
+    render();
+    toast("Fixture added: " + home + " vs " + away + ".");
+  });
+
+  /* ---------- Misc ---------- */
+  document.getElementById("signOutBtn").addEventListener("click", function(){
+    toast("This is the mock-up, so there's no real sign-out yet — in the live version this is where you'd log out.");
+  });
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    resetState();
+    filter = "all";
+    document.querySelectorAll(".filter").forEach(function(x){
+      x.setAttribute("aria-pressed", x.getAttribute("data-filter") === "all" ? "true" : "false");
+    });
+    formMsg.textContent = "";
+    render();
+    toast("Mock-up reset — back to the example fixtures and scores.");
+    window.scrollTo({ top:0, behavior:"smooth" });
+  });
+
+  resetState();
+  render();
+})();
+</script>
+</body>
+</html>
